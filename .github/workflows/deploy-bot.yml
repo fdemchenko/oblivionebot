@@ -18,7 +18,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
       - name: Set up Go
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v5
       - name: Build app
         run: |
           go mod download
