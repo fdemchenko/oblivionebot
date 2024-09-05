@@ -1,0 +1,14 @@
+[Unit]
+Description=Schedule provider telegram bot
+After=network.target
+
+[Service]
+WorkingDirectory=/home/ubuntu/oblivionebot
+ExecStart=/home/ubuntu/oblivionebot/oblivionebot
+Restart=always
+RestartSec=4
+StandardOutput=inherit
+EnvironmentFile=/home/ubuntu/oblivionebot/config.env
+
+[Install]
+WantedBy=multi-user.target
