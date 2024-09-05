@@ -1,0 +1,1 @@
+# Polissia University schedule bot
