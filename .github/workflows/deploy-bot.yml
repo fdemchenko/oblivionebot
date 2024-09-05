@@ -47,7 +47,7 @@ jobs:
           echo 'OBLIVIONE_TG_TOKEN=${{ secrets.OBLIVIONE_TG_TOKEN }}' >> ${{ env.ENV_FILE_PATH }}"
       - name: Copy systemd service file
         run: |
-          scp -i deploy_key.pem -o StrictHostKeyChecking=no ${{ github.workspace }}/oblivionebot.service ${{ env.HOST }}:/tmp/oblivionebot.service
+          scp -i deploy_key.pem -o StrictHostKeyChecking=no ${{ github.workspace }}/deployment/oblivionebot.service ${{ env.HOST }}:/tmp/oblivionebot.service
           ssh -i deploy_key.pem -o StrictHostKeyChecking=no ${{ env.HOST }} "sudo mv /tmp/oblivionebot.service /etc/systemd/system/oblivionebot.service"
       - name: Start application
         run: |
