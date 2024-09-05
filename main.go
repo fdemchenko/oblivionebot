@@ -8,6 +8,16 @@ import (
 	tele "gopkg.in/telebot.v3"
 )
 
+var UkraineLocation *time.Location
+
+func init() {
+	loc, err := time.LoadLocation("Europe/Kyiv")
+	if err != nil {
+		panic(err)
+	}
+	UkraineLocation = loc
+}
+
 func main() {
 	botSettings := tele.Settings{
 		Token:  os.Getenv("OBLIVIONE_TG_TOKEN"),
@@ -20,7 +30,7 @@ func main() {
 		return
 	}
 
-	bot.Handle(tele.OnText, func(c tele.Context) error {
+	bot.Handle("/week", func(c tele.Context) error {
 		return c.Send(c.Message().Text)
 	})
 
