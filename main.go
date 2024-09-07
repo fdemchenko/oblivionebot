@@ -37,7 +37,7 @@ func main() {
 	endDate := startDate.Add(time.Hour * 24 * 5)
 
 	client := ScheduleClient{Client: http.DefaultClient}
-	provider := NewScheduleProvider(client)
+	provider := NewScheduleProvider(client, time.Hour)
 
 	bot.Handle("/week", func(c tele.Context) error {
 		workingDays, err := provider.GetSchedule(startDate, endDate)
