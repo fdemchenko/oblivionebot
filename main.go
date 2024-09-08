@@ -47,7 +47,7 @@ func main() {
 	}
 
 	client := ScheduleClient{Client: http.DefaultClient}
-	provider := NewScheduleProvider(client, time.Hour)
+	provider := NewScheduleProvider(client, time.Hour, logger)
 
 	bot.Handle("/week", func(c tele.Context) error {
 		startDate := time.Now().Add(-time.Duration(time.Now().Weekday()) * time.Hour * 24)

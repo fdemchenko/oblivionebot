@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"log/slog"
 	"time"
 
 	"golang.org/x/net/html"
@@ -13,11 +14,13 @@ type ScheduleProvider struct {
 	client   ScheduleClient
 	cache    *Cache[string, []WorkingDay]
 	cacheTTL time.Duration
+	logger   *slog.Logger
 }
 
-func NewScheduleProvider(client ScheduleClient, cacheTTL time.Duration) *ScheduleProvider {
+func NewScheduleProvider(client ScheduleClient, cacheTTL time.Duration, logger *slog.Logger) *ScheduleProvider {
 	return &ScheduleProvider{
 		client:   client,
+		logger:   logger,
 		cache:    NewCache[string, []WorkingDay](),
 		cacheTTL: cacheTTL,
 	}
@@ -31,6 +34,7 @@ func (sp *ScheduleProvider) GetSchedule(request ScheduleRequest) ([]WorkingDay, 
 
 	workingDays, err := sp.fetchSchedule(request)
 	if err != nil {
+		sp.logger.Error("failed to fetch schedule", slog.String("err", err.Error()))
 		return nil, err
 	}
 
@@ -41,11 +45,13 @@ func (sp *ScheduleProvider) GetSchedule(request ScheduleRequest) ([]WorkingDay, 
 func (sp *ScheduleProvider) fetchSchedule(request ScheduleRequest) ([]WorkingDay, error) {
 	htmlBytes, err := sp.client.GetScheduleHTML(request)
 	if err != nil {
+		sp.logger.Error("failed to fetch schedule page markup", slog.String("err", err.Error()))
 		return nil, err
 	}
 
 	document, err := html.Parse(bytes.NewReader(htmlBytes))
 	if err != nil {
+		sp.logger.Error("failed to parse html markup", slog.String("err", err.Error()))
 		return nil, err
 	}
 
@@ -54,6 +60,7 @@ func (sp *ScheduleProvider) fetchSchedule(request ScheduleRequest) ([]WorkingDay
 	for _, worworkingDayNode := range workingDayNodes {
 		workingDay, err := processWorkingDayNode(worworkingDayNode)
 		if err != nil {
+			sp.logger.Error("failed to process working day html node", slog.String("err", err.Error()))
 			return nil, err
 		}
 		workingDays = append(workingDays, *workingDay)
