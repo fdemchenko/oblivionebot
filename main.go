@@ -35,13 +35,13 @@ func main() {
 		return
 	}
 
-	startDate := time.Now().Add(-time.Duration(time.Now().Weekday()) * time.Hour * 24)
-	endDate := startDate.Add(time.Hour * 24 * 5)
-
 	client := ScheduleClient{Client: http.DefaultClient}
 	provider := NewScheduleProvider(client, time.Hour)
 
 	bot.Handle("/week", func(c tele.Context) error {
+		startDate := time.Now().Add(-time.Duration(time.Now().Weekday()) * time.Hour * 24)
+		endDate := startDate.Add(time.Hour * 24 * 5)
+
 		workingDays, err := provider.GetSchedule(ScheduleRequest{Start: startDate, End: endDate, Group: GROUP})
 		if err != nil {
 			return c.Send("На жаль відбулася помилка, неможливо отримати розклад.")
