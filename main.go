@@ -1,11 +1,9 @@
 package main
 
 import (
-	"fmt"
 	"log/slog"
 	"net/http"
 	"os"
-	"strings"
 	"time"
 
 	tele "gopkg.in/telebot.v3"
@@ -49,30 +47,9 @@ func main() {
 	client := ScheduleClient{Client: http.DefaultClient}
 	provider := NewScheduleProvider(client, time.Hour, logger)
 
-	bot.Handle("/week", func(c tele.Context) error {
-		startDate := time.Now().Add(-time.Duration(time.Now().Weekday()) * time.Hour * 24)
-		endDate := startDate.Add(time.Hour * 24 * 5)
+	handlers := NewHandlers(provider)
 
-		workingDays, err := provider.GetSchedule(ScheduleRequest{Start: startDate, End: endDate, Group: GROUP})
-		if err != nil {
-			return c.Send("На жаль відбулася помилка, неможливо отримати розклад.")
-		}
-
-		var message strings.Builder
-		for _, day := range workingDays {
-			message.WriteString(fmt.Sprintf("%s\n", day.DayOfWeekName))
-			for _, lesson := range day.Classes {
-				startTime := lesson.StartTime.Format("15:04")
-				endTime := lesson.EndTime.Format("15:04")
-				message.WriteString(fmt.Sprintf("%s-%s: %s\n", startTime, endTime, lesson.Title))
-				message.WriteString(fmt.Sprintf("%s, %s\n", lesson.Lecturer, lesson.Room))
-			}
-			message.WriteRune('\n')
-		}
-
-		return c.Send(message.String())
-	}, NewLogginsMiddleware(logger))
-
+	bot.Handle("/week", handlers.weekScheduleHandler, NewLogginsMiddleware(logger))
 	bot.Start()
 }
 
