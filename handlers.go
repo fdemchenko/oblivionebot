@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"strings"
 	"time"
 
@@ -31,13 +30,7 @@ func (h *Handlers) weekScheduleHandler(ctx tele.Context) error {
 
 	var message strings.Builder
 	for _, day := range workingDays {
-		message.WriteString(fmt.Sprintf("%s\n", day.DayOfWeekName))
-		for _, lesson := range day.Classes {
-			startTime := lesson.StartTime.Format("15:04")
-			endTime := lesson.EndTime.Format("15:04")
-			message.WriteString(fmt.Sprintf("%s-%s: %s\n", startTime, endTime, lesson.Title))
-			message.WriteString(fmt.Sprintf("%s, %s\n", lesson.Lecturer, lesson.Room))
-		}
+		message.WriteString(day.String())
 		message.WriteRune('\n')
 	}
 
