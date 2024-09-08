@@ -28,6 +28,10 @@ func (h *Handlers) weekScheduleHandler(ctx tele.Context) error {
 		return ctx.Send(ERROR_MESSAGE)
 	}
 
+	if len(workingDays) == 0 {
+		return ctx.Send("Пар немає🥳")
+	}
+
 	var message strings.Builder
 	for _, day := range workingDays {
 		message.WriteString(day.String())
