@@ -1,17 +1,17 @@
 package main
 
 import (
-	"fmt"
-	"log"
+	"log/slog"
 	"net/http"
 	"os"
-	"strings"
 	"time"
 
 	tele "gopkg.in/telebot.v3"
 )
 
 var UkraineLocation *time.Location
+
+const GROUP = "КН-24"
 
 func init() {
 	loc, err := time.LoadLocation("Europe/Kyiv")
@@ -22,6 +22,8 @@ func init() {
 }
 
 func main() {
+	logger := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}))
+
 	botSettings := tele.Settings{
 		Token:  os.Getenv("OBLIVIONE_TG_TOKEN"),
 		Poller: &tele.LongPoller{Timeout: 10 * time.Second},
@@ -29,36 +31,49 @@ func main() {
 
 	bot, err := tele.NewBot(botSettings)
 	if err != nil {
-		log.Fatal(err)
-		return
+		logger.Error("failed to init telegram bot", slog.String("err", err.Error()))
+		os.Exit(1)
 	}
 
-	startDate := time.Now().Add(-time.Duration(time.Now().Weekday()) * time.Hour * 24)
-	endDate := startDate.Add(time.Hour * 24 * 5)
+	commands := []tele.Command{
+		{Text: "/week", Description: "Get schedule for current week"},
+		{Text: "/today", Description: "Get schedule for today"},
+		{Text: "/tomorrow", Description: "Get schedule for tomorrow"},
+	}
+
+	err = bot.SetCommands(commands)
+	if err != nil {
+		logger.Error("failed to set bot commands", slog.String("err", err.Error()))
+	}
 
 	client := ScheduleClient{Client: http.DefaultClient}
-	provider := NewScheduleProvider(client, time.Hour)
+	provider := NewScheduleProvider(client, time.Hour, logger)
 
-	bot.Handle("/week", func(c tele.Context) error {
-		workingDays, err := provider.GetSchedule(startDate, endDate)
-		if err != nil {
-			return c.Send("На жаль відбулася помилка, неможливо отримати розклад.")
-		}
+	handlers := NewHandlers(provider)
 
-		var message strings.Builder
-		for _, day := range workingDays {
-			message.WriteString(fmt.Sprintf("%s\n", day.DayOfWeekName))
-			for _, lesson := range day.Classes {
-				startTime := lesson.StartTime.Format("15:04")
-				endTime := lesson.EndTime.Format("15:04")
-				message.WriteString(fmt.Sprintf("%s-%s: %s\n", startTime, endTime, lesson.Title))
-				message.WriteString(fmt.Sprintf("%s, %s\n", lesson.Lecturer, lesson.Room))
-			}
-			message.WriteRune('\n')
-		}
-
-		return c.Send(message.String())
-	})
-
+	bot.Handle("/week", handlers.weekScheduleHandler, NewLogginsMiddleware(logger))
+	bot.Handle("/today", handlers.todaySchedulehandler, NewLogginsMiddleware(logger))
+	bot.Handle("/tomorrow", handlers.tomorrowSchedulehandler, NewLogginsMiddleware(logger))
 	bot.Start()
+}
+
+func NewLogginsMiddleware(logger *slog.Logger) tele.MiddlewareFunc {
+	return func(next tele.HandlerFunc) tele.HandlerFunc {
+		return func(ctx tele.Context) error {
+			var userID int64
+			var userName string = "<no name>"
+			if ctx.Sender() != nil {
+				userID = ctx.Sender().ID
+				userName = ctx.Sender().FirstName
+			}
+
+			logger.Info("request processed",
+				slog.Int64("userID", userID),
+				slog.String("userName", userName),
+				slog.String("command", ctx.Text()),
+			)
+
+			return next(ctx)
+		}
+	}
 }
