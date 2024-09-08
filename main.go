@@ -37,6 +37,8 @@ func main() {
 
 	commands := []tele.Command{
 		{Text: "/week", Description: "Get schedule for current week"},
+		{Text: "/today", Description: "Get schedule for today"},
+		{Text: "/tomorrow", Description: "Get schedule for tomorrow"},
 	}
 
 	err = bot.SetCommands(commands)
@@ -50,6 +52,8 @@ func main() {
 	handlers := NewHandlers(provider)
 
 	bot.Handle("/week", handlers.weekScheduleHandler, NewLogginsMiddleware(logger))
+	bot.Handle("/today", handlers.todaySchedulehandler, NewLogginsMiddleware(logger))
+	bot.Handle("/tomorrow", handlers.tomorrowSchedulehandler, NewLogginsMiddleware(logger))
 	bot.Start()
 }
 

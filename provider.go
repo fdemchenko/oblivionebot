@@ -26,13 +26,30 @@ func NewScheduleProvider(client ScheduleClient, cacheTTL time.Duration, logger *
 	}
 }
 
-func (sp *ScheduleProvider) GetSchedule(request ScheduleRequest) ([]WorkingDay, error) {
-	cacheKey := request.Start.Format("02.01") + "-" + request.End.Format("02.01")
+func (sp *ScheduleProvider) GetDaySchedule(day time.Time, group string) (*WorkingDay, error) {
+	weekSchedule, err := sp.GetWeekSchedule(group)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, workingDay := range weekSchedule {
+		if truncateToDays(truncateToDays(day.In(UkraineLocation))).Equal(truncateToDays(workingDay.DayOfWeek)) {
+			return &workingDay, nil
+		}
+	}
+	return nil, nil
+}
+
+func (sp *ScheduleProvider) GetWeekSchedule(group string) ([]WorkingDay, error) {
+	startDate := time.Now().Add(-time.Duration(time.Now().Weekday()) * time.Hour * 24)
+	endDate := startDate.Add(time.Hour * 24 * 5)
+
+	cacheKey := startDate.Format("02.01") + "-" + endDate.Format("02.01")
 	if workingDays, exists := sp.cache.Get(cacheKey); exists {
 		return workingDays, nil
 	}
 
-	workingDays, err := sp.fetchSchedule(request)
+	workingDays, err := sp.fetchSchedule(ScheduleRequest{Start: startDate, End: endDate, Group: group})
 	if err != nil {
 		sp.logger.Error("failed to fetch schedule", slog.String("err", err.Error()))
 		return nil, err
