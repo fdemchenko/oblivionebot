@@ -21,3 +21,9 @@ type WorkingDay struct {
 	DayOfWeekName string
 	Classes       []Class
 }
+
+type ScheduleRequest struct {
+	Start time.Time
+	End   time.Time
+	Group string
+}

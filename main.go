@@ -13,6 +13,8 @@ import (
 
 var UkraineLocation *time.Location
 
+const GROUP = "КН-24"
+
 func init() {
 	loc, err := time.LoadLocation("Europe/Kyiv")
 	if err != nil {
@@ -40,7 +42,7 @@ func main() {
 	provider := NewScheduleProvider(client, time.Hour)
 
 	bot.Handle("/week", func(c tele.Context) error {
-		workingDays, err := provider.GetSchedule(startDate, endDate)
+		workingDays, err := provider.GetSchedule(ScheduleRequest{Start: startDate, End: endDate, Group: GROUP})
 		if err != nil {
 			return c.Send("На жаль відбулася помилка, неможливо отримати розклад.")
 		}

@@ -23,13 +23,13 @@ func NewScheduleProvider(client ScheduleClient, cacheTTL time.Duration) *Schedul
 	}
 }
 
-func (sp *ScheduleProvider) GetSchedule(start, end time.Time) ([]WorkingDay, error) {
-	cacheKey := start.Format("02.01") + "-" + end.Format("02.01")
+func (sp *ScheduleProvider) GetSchedule(request ScheduleRequest) ([]WorkingDay, error) {
+	cacheKey := request.Start.Format("02.01") + "-" + request.End.Format("02.01")
 	if workingDays, exists := sp.cache.Get(cacheKey); exists {
 		return workingDays, nil
 	}
 
-	workingDays, err := sp.fetchSchedule(start, end)
+	workingDays, err := sp.fetchSchedule(request)
 	if err != nil {
 		return nil, err
 	}
@@ -38,8 +38,8 @@ func (sp *ScheduleProvider) GetSchedule(start, end time.Time) ([]WorkingDay, err
 	return workingDays, nil
 }
 
-func (sp *ScheduleProvider) fetchSchedule(start, end time.Time) ([]WorkingDay, error) {
-	htmlBytes, err := sp.client.GetScheduleHTML(start, end)
+func (sp *ScheduleProvider) fetchSchedule(request ScheduleRequest) ([]WorkingDay, error) {
+	htmlBytes, err := sp.client.GetScheduleHTML(request)
 	if err != nil {
 		return nil, err
 	}
