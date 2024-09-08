@@ -35,6 +35,12 @@ func main() {
 		return
 	}
 
+	commands := []tele.Command{
+		{Text: "/week", Description: "Get schedule for current week"},
+	}
+
+	bot.SetCommands(commands)
+
 	client := ScheduleClient{Client: http.DefaultClient}
 	provider := NewScheduleProvider(client, time.Hour)
 
