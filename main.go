@@ -46,6 +46,10 @@ func main() {
 		logger.Error("failed to set bot commands", slog.String("err", err.Error()))
 	}
 
+	if err := bot.SetMyDescription("This is a bot for viewing Polissia National University Schedule", "en"); err != nil {
+		logger.Error("failed to set bot description", slog.String("err", err.Error()))
+	}
+
 	client := ScheduleClient{Client: http.DefaultClient}
 	provider := NewScheduleProvider(client, time.Hour, logger)
 
