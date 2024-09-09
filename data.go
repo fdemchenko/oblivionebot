@@ -13,10 +13,10 @@ var ErrNoLesson = errors.New("there is no lesson")
 type Class struct {
 	StartTime, EndTime time.Time
 	Number             int
-	Lecturer           string
-	Title              string
-	Room               string
-	Groups             string
+	Lecturer           []string
+	Title              []string
+	Room               []string
+	Groups             []string
 }
 
 type WorkingDay struct {
@@ -36,7 +36,7 @@ func (wd *WorkingDay) String() string {
 	}
 	workingDayString.WriteRune('\n')
 
-	for _, lesson := range wd.Classes {
+	for i, lesson := range wd.Classes {
 		var classEmoji string
 		if rand.Intn(2) == 0 {
 			classEmoji = "💻"
@@ -45,8 +45,18 @@ func (wd *WorkingDay) String() string {
 		}
 		startTime := lesson.StartTime.Format("15:04")
 		endTime := lesson.EndTime.Format("15:04")
-		workingDayString.WriteString(fmt.Sprintf("%s%s-%s: %s\n", classEmoji, startTime, endTime, lesson.Title))
-		workingDayString.WriteString(fmt.Sprintf("%s, %s", lesson.Lecturer, lesson.Room))
+		if len(lesson.Lecturer) == 2 {
+			workingDayString.WriteString(fmt.Sprintf("%s%s-%s:\n", classEmoji, startTime, endTime))
+			workingDayString.WriteString(fmt.Sprintf("    1 підгрупа: %s, %s, %s\n", lesson.Title[0], lesson.Lecturer[0], lesson.Room[0]))
+			workingDayString.WriteString(fmt.Sprintf("    2 підгрупа: %s, %s, %s", lesson.Title[1], lesson.Lecturer[1], lesson.Room[1]))
+		} else {
+			workingDayString.WriteString(fmt.Sprintf("%s%s-%s: %s\n", classEmoji, startTime, endTime, lesson.Title[0]))
+			workingDayString.WriteString(fmt.Sprintf("%s, %s", lesson.Lecturer[0], lesson.Room[0]))
+		}
+		workingDayString.WriteRune('\n')
+		if i < len(wd.Classes)-1 {
+			workingDayString.WriteString("⎯⎯⎯⎯⎯⎯⎯⎯⎯")
+		}
 		workingDayString.WriteRune('\n')
 	}
 	return workingDayString.String()

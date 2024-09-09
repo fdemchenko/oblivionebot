@@ -120,6 +120,19 @@ func processLessonNode(node *html.Node, day string) (*Class, error) {
 			infos = append(infos, strings.TrimSpace(infoNode.Data))
 		}
 	}
+
+	if len(infos) == 8 {
+		return &Class{
+			Number:    lessonNo,
+			StartTime: startTime,
+			EndTime:   endTime,
+			Lecturer:  []string{infos[3], infos[7]},
+			Title:     []string{infos[0], infos[4]},
+			Room:      []string{infos[1], infos[5]},
+			Groups:    []string{infos[1], infos[6]},
+		}, nil
+	}
+
 	var groups string
 	if len(infos) > 3 {
 		groups = infos[2]
@@ -129,9 +142,9 @@ func processLessonNode(node *html.Node, day string) (*Class, error) {
 		Number:    lessonNo,
 		StartTime: startTime,
 		EndTime:   endTime,
-		Lecturer:  infos[len(infos)-1],
-		Title:     infos[0],
-		Room:      infos[1],
-		Groups:    groups,
+		Lecturer:  []string{infos[len(infos)-1]},
+		Title:     []string{infos[0]},
+		Room:      []string{infos[1]},
+		Groups:    []string{groups},
 	}, nil
 }
