@@ -42,7 +42,7 @@ func (h *Handlers) weekScheduleHandler(ctx tele.Context) error {
 }
 
 func (h *Handlers) todaySchedulehandler(ctx tele.Context) error {
-	workingDay, err := h.scheduleProvider.GetDaySchedule(time.Now(), GROUP)
+	workingDay, err := h.scheduleProvider.GetDaySchedule(time.Now().In(UkraineLocation), GROUP)
 	if err != nil {
 		return ctx.Send(ERROR_MESSAGE)
 	}
@@ -55,7 +55,7 @@ func (h *Handlers) todaySchedulehandler(ctx tele.Context) error {
 }
 
 func (h *Handlers) tomorrowSchedulehandler(ctx tele.Context) error {
-	workingDay, err := h.scheduleProvider.GetDaySchedule(time.Now().Add(time.Hour*24).In(UkraineLocation), GROUP)
+	workingDay, err := h.scheduleProvider.GetDaySchedule(time.Now().In(UkraineLocation).Add(time.Hour*24), GROUP)
 	if err != nil {
 		return ctx.Send(ERROR_MESSAGE)
 	}
