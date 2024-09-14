@@ -25,6 +25,10 @@ type WorkingDay struct {
 	Classes       []Class
 }
 
+func trimParenthesesFunc(r rune) bool {
+	return r == '(' || r == ')'
+}
+
 func (wd *WorkingDay) String() string {
 	var workingDayString strings.Builder
 
@@ -46,13 +50,15 @@ func (wd *WorkingDay) String() string {
 		startTime := lesson.StartTime.Format("15:04")
 		endTime := lesson.EndTime.Format("15:04")
 		if len(lesson.Lecturer) == 2 {
+			group1 := strings.TrimFunc(lesson.Groups[0], trimParenthesesFunc)
+			group2 := strings.TrimFunc(lesson.Groups[0], trimParenthesesFunc)
 			workingDayString.WriteString(fmt.Sprintf("%s%s-%s:\n", classEmoji, startTime, endTime))
-			workingDayString.WriteString(fmt.Sprintf("    %s: %s, %s, %s\n", lesson.Groups[0], lesson.Title[0], lesson.Lecturer[0], lesson.Room[0]))
-			workingDayString.WriteString(fmt.Sprintf("    %s: %s, %s, %s", lesson.Groups[1], lesson.Title[1], lesson.Lecturer[1], lesson.Room[1]))
+			workingDayString.WriteString(fmt.Sprintf("    %s: %s, %s, %s\n", group1, lesson.Title[0], lesson.Lecturer[0], lesson.Room[0]))
+			workingDayString.WriteString(fmt.Sprintf("    %s: %s, %s, %s", group2, lesson.Title[1], lesson.Lecturer[1], lesson.Room[1]))
 		} else {
 			workingDayString.WriteString(fmt.Sprintf("%s%s-%s: %s\n", classEmoji, startTime, endTime, lesson.Title[0]))
 			if lesson.Groups[0] != "" {
-				workingDayString.WriteString(fmt.Sprintf("%s, %s (%s)", lesson.Lecturer[0], lesson.Room[0], lesson.Groups[0]))
+				workingDayString.WriteString(fmt.Sprintf("%s, %s (%s)", lesson.Lecturer[0], lesson.Room[0], strings.TrimFunc(lesson.Groups[0], trimParenthesesFunc)))
 			} else {
 				workingDayString.WriteString(fmt.Sprintf("%s, %s", lesson.Lecturer[0], lesson.Room[0]))
 			}
