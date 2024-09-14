@@ -48,7 +48,7 @@ func (wd *WorkingDay) String() string {
 		if len(lesson.Lecturer) == 2 {
 			workingDayString.WriteString(fmt.Sprintf("%s%s-%s:\n", classEmoji, startTime, endTime))
 			workingDayString.WriteString(fmt.Sprintf("    %s: %s, %s, %s\n", lesson.Groups[0], lesson.Title[0], lesson.Lecturer[0], lesson.Room[0]))
-			workingDayString.WriteString(fmt.Sprintf("    %s: %s, %s, %s", lesson.Groups[0], lesson.Title[1], lesson.Lecturer[1], lesson.Room[1]))
+			workingDayString.WriteString(fmt.Sprintf("    %s: %s, %s, %s", lesson.Groups[1], lesson.Title[1], lesson.Lecturer[1], lesson.Room[1]))
 		} else {
 			workingDayString.WriteString(fmt.Sprintf("%s%s-%s: %s\n", classEmoji, startTime, endTime, lesson.Title[0]))
 			if lesson.Groups[0] != "" {

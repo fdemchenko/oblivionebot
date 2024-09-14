@@ -129,7 +129,7 @@ func processLessonNode(node *html.Node, day string) (*Class, error) {
 			Lecturer:  []string{infos[3], infos[7]},
 			Title:     []string{infos[0], infos[4]},
 			Room:      []string{infos[1], infos[5]},
-			Groups:    []string{infos[1], infos[6]},
+			Groups:    []string{infos[2], infos[6]},
 		}, nil
 	}
 
