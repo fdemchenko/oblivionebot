@@ -41,7 +41,7 @@ func (sp *ScheduleProvider) GetDaySchedule(day time.Time, group string) (*Workin
 }
 
 func (sp *ScheduleProvider) GetWeekSchedule(group string) ([]WorkingDay, error) {
-	startDate := time.Now().Add(-time.Duration(time.Now().In(UkraineLocation).Weekday()) * time.Hour * 24)
+	startDate := time.Now().Add(-time.Duration((time.Now().In(UkraineLocation).Weekday()+1)%7) * time.Hour * 24)
 	endDate := startDate.Add(time.Hour * 24 * 5)
 
 	cacheKey := startDate.Format("02.01") + "-" + endDate.Format("02.01")
